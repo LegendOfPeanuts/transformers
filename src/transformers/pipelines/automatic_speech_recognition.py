@@ -198,6 +198,7 @@ class AutomaticSpeechRecognitionPipeline(ChunkPipeline):
         feature_extractor: Union["SequenceFeatureExtractor", str],
         *,
         decoder: Optional[Union["BeamSearchDecoderCTC", str]] = None,
+        prompt_ids="以下喺廣東話嘅對話.",
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -221,6 +222,7 @@ class AutomaticSpeechRecognitionPipeline(ChunkPipeline):
             raise ValueError("The AutomaticSpeechRecognitionPipeline is only available in PyTorch.")
 
         self.check_model_type(dict(MODEL_FOR_SPEECH_SEQ_2_SEQ_MAPPING.items() + MODEL_FOR_CTC_MAPPING.items()))
+        self.prompt_ids=prompt_ids
 
     def __call__(
         self,
@@ -560,10 +562,10 @@ class AutomaticSpeechRecognitionPipeline(ChunkPipeline):
                     offsets.append({"word": word, "start_offset": start_offset, "end_offset": end_offset})
         elif self.type != "seq2seq_whisper":
             skip_special_tokens = self.type != "ctc"
-            text = self.tokenizer.decode(items, skip_special_tokens=skip_special_tokens)
+            text = self.tokenizer.decode(items, skip_special_tokens=skip_special_tokens, prompt_ids=self.prompt_ids)
             if return_timestamps:
                 offsets = self.tokenizer.decode(
-                    items, skip_special_tokens=skip_special_tokens, output_char_offsets=True
+                    items, skip_special_tokens=skip_special_tokens, output_char_offsets=True, promot_ids=self.prompt_ids
                 )["char_offsets"]
                 if return_timestamps == "word":
                     offsets = self.tokenizer._get_word_offsets(offsets, self.tokenizer.replace_word_delimiter_char)
