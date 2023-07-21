@@ -283,6 +283,7 @@ class AutomaticSpeechRecognitionPipeline(ChunkPipeline):
         return_language=None,
         generate_kwargs=None,
         max_new_tokens=None,
+        prompt_ids=None,
     ):
         # No parameters on this pipeline right now
         preprocess_params = {}
